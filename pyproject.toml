@@ -23,6 +23,7 @@ build-backend = "poetry.core.masonry.api"
 [dependency-groups]
 dev = [
     "black (>=25.9.0,<26.0.0)",
+    "pdm (>=2.26.0,<3.0.0)",
     "pytest (>=8.4.2,<9.0.0)"
 ]
 
@@ -31,3 +32,6 @@ minversion = "6.0"
 testpaths = [
     "tests/**/*_tests.py",
 ]
+
+[tool.pdm.scripts]
+prettify = "black src tests"
