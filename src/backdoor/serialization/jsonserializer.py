@@ -2,7 +2,7 @@ import json
 from typing import Any
 
 from backdoor.serialization.encoders.aggregator import EncoderAggregator
-from backdoor.serialization.decoders.commands import CommandDecoder
+from backdoor.serialization.decoders.aggregator import DecoderAggregator
 
 
 class JsonSerializer:
@@ -11,4 +11,4 @@ class JsonSerializer:
         return json.dumps(payload, cls=EncoderAggregator).encode()
 
     def deserialize(self, data: bytes) -> Any:
-        return json.loads(data.decode(), cls=CommandDecoder)
+        return json.loads(data.decode(), cls=DecoderAggregator)

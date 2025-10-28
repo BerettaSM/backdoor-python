@@ -1,15 +1,13 @@
-from json import JSONDecoder
 from typing import Any
 
 from backdoor.models.commands import Command
+from backdoor.serialization.decoders.decoder import Decoder
+from backdoor.serialization.decoders.exceptions import NotDecodableError
 
 
-class CommandDecoder(JSONDecoder):
+class CommandDecoder(Decoder):
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(object_hook=self.command_hook, *args, **kwargs)
-
-    def command_hook(self, dct: dict[str, Any]) -> Command | dict[str, Any]:
+    def decode(self, dct: dict[str, Any]) -> Command:
         keys = "command", "args", "payload"
         if set(keys) == dct.keys():
             try:
@@ -20,4 +18,5 @@ class CommandDecoder(JSONDecoder):
                 )
             except AttributeError:
                 raise ValueError("Invalid payload type on decoding. Expected: str")
-        return dct
+        else:
+            raise NotDecodableError
