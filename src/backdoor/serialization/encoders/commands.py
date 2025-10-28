@@ -1,13 +1,14 @@
 from dataclasses import asdict
-from json import JSONEncoder
 from typing import Any
 
 from backdoor.models.commands import Command
+from backdoor.serialization.encoders.encoder import Encoder
+from backdoor.serialization.encoders.exceptions import NotEncodableError
 
 
-class CommandEncoder(JSONEncoder):
+class CommandEncoder(Encoder):
 
-    def default(self, o: Any) -> Any:
+    def encode(self, o: Any) -> Any:
         match o:
             case Command():
                 _dict = asdict(o)
@@ -19,4 +20,4 @@ class CommandEncoder(JSONEncoder):
                     )
                 return _dict
             case _:
-                return JSONEncoder.default(self, o)
+                raise NotEncodableError
