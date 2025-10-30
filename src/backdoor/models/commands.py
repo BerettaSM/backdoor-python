@@ -11,3 +11,15 @@ class Command(BaseModel):
     @field_serializer("payload")
     def serialize_payload(self, payload: Optional[bytes]) -> Optional[str]:
         return payload.decode() if payload else None
+
+
+class CommandResult(BaseModel):
+    success: bool
+    returncode: int
+    stdout: Optional[str] = None
+    stderr: Optional[str] = None
+    payload: Optional[bytes] = None
+
+    @field_serializer("payload")
+    def serialize_payload(self, payload: Optional[bytes]) -> Optional[str]:
+        return payload.decode() if payload else None
