@@ -1,7 +1,7 @@
 from socket import socket
 
 
-class SocketMessenger:
+class SocketProtocol:
 
     def __init__(self, bufsize: int = 1024, paddingsize: int = 1024) -> None:
         self.bufsize = bufsize
