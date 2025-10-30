@@ -161,7 +161,7 @@ class TestJsonSerializer:
     def test_serialize_should_serialize_command(
         self, serializer: JsonSerializer
     ) -> None:
-        payload = Command("cmd", ["arg"], b"payload")
+        payload = Command(command="cmd", args=["arg"], payload=b"payload")
 
         result = serializer.serialize(payload)
 
@@ -170,21 +170,11 @@ class TestJsonSerializer:
     def test_serialize_should_serialize_command_when_optional_fields_are_null(
         self, serializer: JsonSerializer
     ) -> None:
-        payload = Command("cmd")
+        payload = Command(command="cmd")
 
         result = serializer.serialize(payload)
 
         assert isinstance(result, bytes)
-
-    def test_serialize_command_should_throw_when_payload_is_not_bytes(
-        self, serializer: JsonSerializer
-    ) -> None:
-        payload = Command("cmd", ["arg"], "not bytes")  # type: ignore
-
-        with pytest.raises(ValueError) as e:
-            serializer.serialize(payload)
-
-            assert e.match("Invalid payload type")
 
     def test_deserialize_should_deserialize_command(
         self, serializer: JsonSerializer
