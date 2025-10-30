@@ -1,7 +1,7 @@
 import pytest
 from typing import Any
 
-from backdoor.models.commands import Command
+from backdoor.models.commands import Command, CommandResult
 from backdoor.serialization.exceptions import BadDataError
 from backdoor.serialization.jsonserializer import JsonSerializer
 
@@ -12,6 +12,17 @@ def serializer() -> JsonSerializer:
 
 
 class TestJsonSerializer:
+
+    def test_deserialize_bad_data_should_throw(
+        self, serializer: JsonSerializer
+    ) -> None:
+        bad_data = "{alkdjfa,;lk1j23lkj312kl3j"
+
+        with pytest.raises(BadDataError) as e:
+
+            serializer.deserialize(bad_data.encode())
+
+        assert e.match("unexpected format")
 
     def test_serialize_should_serialize_str(self, serializer: JsonSerializer) -> None:
         payload = "message"
@@ -197,13 +208,57 @@ class TestJsonSerializer:
         assert result.args is None
         assert result.payload is None
 
-    def test_deserialize_bad_data_should_throw(
+    def test_serialize_should_serialize_command_result(
         self, serializer: JsonSerializer
     ) -> None:
-        bad_data = "{alkdjfa,;lk1j23lkj312kl3j"
+        payload = CommandResult(
+            success=True,
+            returncode=0,
+            stdout="stdout",
+            stderr="stderr",
+            payload=b"payload",
+        )
 
-        with pytest.raises(BadDataError) as e:
+        result = serializer.serialize(payload)
 
-            serializer.deserialize(bad_data.encode())
+        assert isinstance(result, bytes)
 
-        assert e.match("unexpected format")
+    def test_serialize_should_serialize_command_result_when_optional_fields_are_null(
+        self, serializer: JsonSerializer
+    ) -> None:
+        payload = CommandResult(success=True, returncode=0)
+
+        result = serializer.serialize(payload)
+
+        assert isinstance(result, bytes)
+
+    def test_deserialize_should_deserialize_command_result(
+        self, serializer: JsonSerializer
+    ) -> None:
+        payload = """
+        {
+            "success":true,
+            "returncode":0,
+            "stdout":"stdout",
+            "stderr":"stderr",
+            "payload":"payload"
+        }
+        """.encode()
+
+        result = serializer.deserialize(payload)
+
+        assert isinstance(result, CommandResult)
+
+    def test_deserialize_should_deserialize_command_result_when_optional_fields_are_null(
+        self, serializer: JsonSerializer
+    ) -> None:
+        payload = """
+        {
+            "success":true,
+            "returncode":0
+        }
+        """.encode()
+
+        result = serializer.deserialize(payload)
+
+        assert isinstance(result, CommandResult)
