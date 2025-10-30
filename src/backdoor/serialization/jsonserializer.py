@@ -14,5 +14,5 @@ class JsonSerializer:
     def deserialize(self, data: bytes) -> Any:
         try:
             return json.loads(data.decode(), cls=DecoderAggregator)
-        except json.JSONDecodeError:
-            raise BadDataError("Data in unexpected format")
+        except json.JSONDecodeError as e:
+            raise BadDataError("Data in unexpected format") from e
