@@ -1,25 +1,19 @@
 from typing import Optional
 
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel
+
+from backdoor.models.mixins import PayloadSerializerMixin
 
 
-class Command(BaseModel):
+class Command(BaseModel, PayloadSerializerMixin):
     command: str
     args: Optional[list[str]] = None
     payload: Optional[bytes] = None
 
-    @field_serializer("payload")
-    def serialize_payload(self, payload: Optional[bytes]) -> Optional[str]:
-        return payload.decode() if payload else None
 
-
-class CommandResult(BaseModel):
+class CommandResult(BaseModel, PayloadSerializerMixin):
     success: bool
     returncode: int
     stdout: Optional[str] = None
     stderr: Optional[str] = None
     payload: Optional[bytes] = None
-
-    @field_serializer("payload")
-    def serialize_payload(self, payload: Optional[bytes]) -> Optional[str]:
-        return payload.decode() if payload else None
