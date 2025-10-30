@@ -8,6 +8,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "pydantic (>=2.12.3,<3.0.0)"
 ]
 
 [tool.poetry]
@@ -24,7 +25,8 @@ build-backend = "poetry.core.masonry.api"
 dev = [
     "black (>=25.9.0,<26.0.0)",
     "pdm (>=2.26.0,<3.0.0)",
-    "pytest (>=8.4.2,<9.0.0)"
+    "pytest (>=8.4.2,<9.0.0)",
+    "mypy (>=1.18.2,<2.0.0)"
 ]
 
 [tool.pytest.ini_options]
