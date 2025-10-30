@@ -2,6 +2,7 @@ import pytest
 from typing import Any
 
 from backdoor.models.commands import Command
+from backdoor.serialization.exceptions import BadDataError
 from backdoor.serialization.jsonserializer import JsonSerializer
 
 
@@ -196,13 +197,13 @@ class TestJsonSerializer:
         assert result.args is None
         assert result.payload is None
 
-    def test_deserialize_command_should_throw_when_payload_is_not_str(
+    def test_deserialize_bad_data_should_throw(
         self, serializer: JsonSerializer
     ) -> None:
-        payload = '{"command":"cmd","args":null,"payload":0xCAFEBABE}'.encode()
+        bad_data = "{alkdjfa,;lk1j23lkj312kl3j"
 
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(BadDataError) as e:
 
-            serializer.deserialize(payload)
+            serializer.deserialize(bad_data.encode())
 
-            assert e.match("Invalid payload type")
+        assert e.match("unexpected format")

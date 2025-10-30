@@ -8,6 +8,6 @@ class Command(BaseModel):
     args: Optional[list[str]] = None
     payload: Optional[bytes] = None
 
-    @field_serializer('payload')
+    @field_serializer("payload")
     def serialize_payload(self, payload: Optional[bytes]) -> Optional[str]:
         return payload.decode() if payload else None

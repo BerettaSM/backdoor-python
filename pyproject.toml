@@ -37,3 +37,5 @@ testpaths = [
 
 [tool.pdm.scripts]
 prettify = "black src tests"
+lint = "mypy src"
+test = "pytest"
