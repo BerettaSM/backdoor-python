@@ -2,6 +2,8 @@ import pytest
 from typing import Any
 
 from backdoor.models.commands import Command, CommandResult
+from backdoor.models.systemreport import SystemReport
+from backdoor.report.systemreport import SystemDataCollector
 from backdoor.serialization.exceptions import BadDataError
 from backdoor.serialization.jsonserializer import JsonSerializer
 
@@ -9,6 +11,11 @@ from backdoor.serialization.jsonserializer import JsonSerializer
 @pytest.fixture
 def serializer() -> JsonSerializer:
     return JsonSerializer()
+
+
+@pytest.fixture
+def system_report() -> SystemReport:
+    return SystemDataCollector().collect_data()
 
 
 class TestJsonSerializer:
@@ -262,3 +269,71 @@ class TestJsonSerializer:
         result = serializer.deserialize(payload)
 
         assert isinstance(result, CommandResult)
+
+    def test_serialize_should_serialize_system_report(
+        self, serializer: JsonSerializer, system_report: SystemReport
+    ) -> None:
+
+        result = serializer.serialize(system_report)
+
+        assert isinstance(result, bytes)
+
+    def test_deserialize_should_deserialize_system_report(
+        self, serializer: JsonSerializer, system_report: SystemReport
+    ) -> None:
+        payload = """
+        {
+            "identity": {
+                "user": "user",
+                "hostname": "host",
+                "platform": "platform",
+                "boot_time": 8.0
+            },
+            "hardware": {
+                "cpu_info": {
+                    "arch": "arch",
+                    "brand": "brand",
+                    "version": "1.0.0",
+                    "frequency": "4.4501 GHz",
+                    "vendor_id": "vendor_id",
+                    "cores": 42
+                },
+                "mem_info": {
+                    "total_bytes": 33569787904,
+                    "total_str": "31.26 GB"
+                },
+                "disk_info": [
+                    {
+                        "device": "/dev/nvme0n1p1",
+                        "mountpoint": "/boot",
+                        "fstype": "vfat",
+                        "opts": "rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=ascii,shortname=mixed,utf8,errors=remount-ro",
+                        "total_space": 16757178368,
+                        "free_space": 16757178368
+                    }
+                ]
+            },
+            "network": {
+                "interfaces": [
+                    {
+                        "name": "lo",
+                        "inet": "127.0.0.1",
+                        "netmask": "255.0.0.0",
+                        "broadcast": "unknown",
+                        "mac": "00:00:00:00:00:00"
+                    },
+                    {
+                        "name": "enp34s0",
+                        "inet": "10.1.1.104",
+                        "netmask": "255.255.255.0",
+                        "broadcast": "10.1.1.255",
+                        "mac": "11:22:33:44:55:66"
+                    }
+                ]
+            }
+        }
+        """.encode()
+
+        result = serializer.deserialize(payload)
+
+        assert isinstance(result, SystemReport)
