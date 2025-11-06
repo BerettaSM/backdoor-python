@@ -32,9 +32,8 @@ class Server:
         client = self.__accept_connection()
         self.__read_client_report(client)
 
-        inp = ""
-        while inp != "exit":
-            inp = self.__get_input()
+        while (inp := self.__get_input()) != 'exit':
+
             command = self.converter.convert(inp)
 
             result = self.exchanger.exchange(client, command)

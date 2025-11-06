@@ -46,3 +46,5 @@ testpaths = [
 prettify = "black src tests"
 lint = "mypy src"
 test = "pytest"
+server = "python src/backdoor/server.py"
+client = "python src/backdoor/client.py"
