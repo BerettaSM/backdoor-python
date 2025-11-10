@@ -21,7 +21,6 @@ class FileProcessor:
             success=True,
             returncode=0,
             payload=content,
-            stdout=f"Success -> {path} - {content}",
         )
 
     def upload(self, command: Command) -> CommandResult:
