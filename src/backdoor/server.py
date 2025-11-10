@@ -3,6 +3,7 @@ import socket
 
 from backdoor.command.converter import InputToCommandConverter
 from backdoor.command.processor import CommandProcessor
+from backdoor.exceptions.core import ApplicationException
 from backdoor.files.io import FileReader, FileWriter
 from backdoor.messages.exchange.server import ServerExchangeMapper
 from backdoor.messages.messenger import SocketMessenger
@@ -10,6 +11,7 @@ from backdoor.messages.protocol import SocketProtocol
 from backdoor.models.client import ClientModel
 from backdoor.models.commands import Command
 from backdoor.serialization.jsonserializer import JsonSerializer
+from backdoor.utils.errors import print_error
 
 
 class Server:
@@ -45,8 +47,8 @@ class Server:
             self.processor.pre_process(command)
             result = self.exchanger.exchange(client, command)
             self.processor.post_process(command, result)
-        except ValueError as e:
-            print('err: ' + str(e))
+        except ApplicationException as e:
+            print_error(e)
 
     def __accept_connection(self) -> ClientModel:
         sock, addr = self.socket.accept()

