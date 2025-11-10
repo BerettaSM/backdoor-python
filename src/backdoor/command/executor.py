@@ -20,13 +20,17 @@ class CommandExecutor:
             )
         except Exception as e:
             return CommandResult(
-                success=False, returncode=1, stderr=str(e) or "Could not execute command"
+                success=False,
+                returncode=1,
+                stderr=str(e) or "Could not execute command",
             )
 
     def __try_execute(self, command: Command) -> CommandResult:
         match command:
             case Command(command="download"):
                 return self.file_processor.download(command)
+            case Command(command="upload"):
+                return self.file_processor.upload(command)
             case _:
                 return self.__delegate_execute(command)
 

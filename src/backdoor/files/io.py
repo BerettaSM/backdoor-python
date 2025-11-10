@@ -7,9 +7,9 @@ class FileReader:
     def read(self, path: str) -> bytes:
         fpath = Path(path).absolute()
         if not fpath.exists():
-            raise ValueError('file not found')
+            raise ValueError("file not found")
         if fpath.is_dir():
-            raise ValueError('cannot read directory')
+            raise ValueError("cannot read directory")
         with open(fpath, mode="rb") as f:
             return b64encode(f.read())
 
