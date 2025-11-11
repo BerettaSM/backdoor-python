@@ -2,6 +2,7 @@
 import os
 import platform
 import socket
+import time
 from typing import LiteralString
 
 import cpuinfo
@@ -16,7 +17,21 @@ UNKNOWN = "unknown"
 
 class SystemDataCollector:
 
+    def __init__(self, report_expiry_in_seconds: int = 60) -> None:
+        self.__timestamp = time.time()
+        self.expiry = report_expiry_in_seconds
+        self.report: SystemReport = self.__generate_report()
+
     def collect_data(self) -> SystemReport:
+        if self.__should_refresh():
+            self.__timestamp = time.time()
+            self.refresh()
+        return self.report
+
+    def refresh(self) -> None:
+        self.report = self.__generate_report()
+
+    def __generate_report(self) -> SystemReport:
         identity = self.__system_identity()
         cpu_info = self.__cpu_info()
         mem_info = self.__mem_info()
@@ -24,6 +39,9 @@ class SystemDataCollector:
         network = self.__network_summary()
         hardware = HardwareSummary(**locals())
         return SystemReport(**locals())
+
+    def __should_refresh(self) -> bool:
+        return self.__timestamp + self.expiry <= time.time()
 
     def __system_identity(self) -> SystemIdentity:
         user = os.getlogin()

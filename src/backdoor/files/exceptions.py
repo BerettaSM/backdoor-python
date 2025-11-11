@@ -1,5 +1,4 @@
-from backdoor.exceptions.core import ApplicationException
+from backdoor.exceptions.core import PresentableApplicationException
 
 
-class FileNotFoundException(ApplicationException):
-    ...
+class FileNotFoundException(PresentableApplicationException): ...

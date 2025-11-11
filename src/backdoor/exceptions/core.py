@@ -1,5 +1,8 @@
-class ApplicationException(Exception):
-    
+class ApplicationException(Exception): ...
+
+
+class PresentableApplicationException(ApplicationException):
+
     def __str__(self) -> str:
         prefix = "err"
         if not self.args:
@@ -9,5 +12,4 @@ class ApplicationException(Exception):
         return "{}: {}".format(prefix, message)
 
 
-class InvalidArgumentException(ApplicationException):
-    ...
+class InvalidArgumentException(PresentableApplicationException): ...

