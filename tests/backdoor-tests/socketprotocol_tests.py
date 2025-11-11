@@ -1,6 +1,7 @@
 import pytest
 from socket import socket, socketpair
 
+from backdoor.messages.exceptions import DisconnectedException
 from backdoor.messages.protocol import SocketProtocol
 
 
@@ -29,13 +30,14 @@ def socket_pair() -> tuple[socket, socket]:
 class TestSocketMessengerRead:
 
     @pytest.mark.parametrize("msg", [""])
-    def test_read_should_return_bytes_of_len_0_when_len_0_is_sent(
+    def test_read_should_throw_disconnected_exception_when_empty_bytes_is_read(
         self, socket_protocol: SocketProtocol, socket_with_message: socket
     ) -> None:
 
-        data = socket_protocol.read(socket_with_message)
+        with pytest.raises(DisconnectedException):
 
-        assert len(data) == 0
+            socket_protocol.read(socket_with_message)
+
 
     @pytest.mark.parametrize("msg", ["hello there"])
     def test_read_should_return_bytes_of_len_11_when_len_11_is_sent(
@@ -108,15 +110,6 @@ class TestSocketMessengerRead:
         data = socket_protocol.read(socket_with_message)
 
         assert data.decode() == "hello"
-
-    @pytest.mark.parametrize("msg", [""])
-    def test_read_should_return_empty_str_when_empty_str_is_sent(
-        self, socket_protocol: SocketProtocol, socket_with_message: socket
-    ) -> None:
-
-        data = socket_protocol.read(socket_with_message)
-
-        assert data.decode() == ""
 
 
 class TestSocketMessengerSend:
