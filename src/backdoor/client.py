@@ -67,7 +67,10 @@ def main() -> None:
     data_collector = SystemDataCollector()
     client = Client(messenger, exchanger, data_collector)
 
-    client.run()
+    try:
+        client.run()
+    except KeyboardInterrupt:
+        ...
 
 
 if __name__ == "__main__":

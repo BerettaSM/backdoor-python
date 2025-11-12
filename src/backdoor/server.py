@@ -83,7 +83,10 @@ def main() -> None:
     processor = CommandProcessor(file_writer, file_reader)
     server = Server(messenger, exchanger, converter, processor)
 
-    server.start()
+    try:
+        server.start()
+    except KeyboardInterrupt:
+        ...
 
 
 if __name__ == "__main__":
