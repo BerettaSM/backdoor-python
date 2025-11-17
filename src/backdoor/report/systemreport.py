@@ -101,8 +101,6 @@ class SystemDataCollector:
                     info["inet"] = addr.address or UNKNOWN
                     info["broadcast"] = addr.broadcast or UNKNOWN
                     info["netmask"] = addr.netmask or UNKNOWN
-                case socket.AF_PACKET:
-                    info["mac"] = addr.address or UNKNOWN
                 case _:
                     ...
         return NetworkInterfaceInfo(name=name, **info)

@@ -42,7 +42,6 @@ class NetworkInterfaceInfo(BaseModel):
     inet: str
     netmask: str
     broadcast: str
-    mac: str
 
 
 class NetworkSummary(BaseModel):
