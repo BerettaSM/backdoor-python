@@ -37,7 +37,7 @@ class CommandExecutor:
                 return self.__chdir(command)
             case _:
                 return self.__delegate_execute(command)
-    
+
     def __chdir(self, command: Command) -> CommandResult:
         if not command.args:
             raise InvalidArgumentException("file path not provided")
@@ -46,7 +46,7 @@ class CommandExecutor:
         try:
             os.chdir(path)
         except FileNotFoundError:
-            raise InvalidArgumentException('no such file or directory')
+            raise InvalidArgumentException("no such file or directory")
         return CommandResult(success=True, returncode=0, stdout=path)
 
     def __delegate_execute(self, command: Command) -> CommandResult:

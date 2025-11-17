@@ -23,7 +23,7 @@ class Server:
         exchanger: ServerExchangeMapper,
         converter: InputToCommandConverter,
         processor: CommandProcessor,
-        host: str = "localhost",
+        host: str = "0.0.0.0",
         port: int = 4567,
     ) -> None:
         self.host = host
@@ -75,8 +75,8 @@ class Server:
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument('-a', '--host', required=False, default='127.0.0.1')
-    parser.add_argument('-p', '--port', required=False, default=4567, type=int)
+    parser.add_argument("-a", "--host", required=False, default="0.0.0.0")
+    parser.add_argument("-p", "--port", required=False, default=4567, type=int)
     return parser.parse_args()
 
 
@@ -93,13 +93,15 @@ def main() -> None:
     exchanger = ServerExchangeMapper(messenger)
     processor = CommandProcessor(file_writer, file_reader)
 
-    server = Server(messenger, exchanger, converter, processor, host=args.host, port=args.port)
+    server = Server(
+        messenger, exchanger, converter, processor, host=args.host, port=args.port
+    )
 
     try:
-        print(f'Server running at {args.host}:{args.port}.')
+        print(f"Server running at {args.host}:{args.port}.")
         server.start()
     except KeyboardInterrupt:
-        ...   
+        ...
 
 
 if __name__ == "__main__":

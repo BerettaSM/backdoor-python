@@ -38,7 +38,6 @@ class TestSocketMessengerRead:
 
             socket_protocol.read(socket_with_message)
 
-
     @pytest.mark.parametrize("msg", ["hello there"])
     def test_read_should_return_bytes_of_len_11_when_len_11_is_sent(
         self, socket_protocol: SocketProtocol, socket_with_message: socket
