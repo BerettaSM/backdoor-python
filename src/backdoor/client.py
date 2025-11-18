@@ -1,4 +1,5 @@
 from argparse import ArgumentParser, Namespace
+import multiprocessing
 import socket
 import time
 
@@ -89,4 +90,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()
