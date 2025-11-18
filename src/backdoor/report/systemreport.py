@@ -85,10 +85,6 @@ class SystemDataCollector:
 
     def __network_summary(self) -> NetworkSummary:
         net_ifs = psutil.net_if_addrs()
-        import pprint
-
-        print("DEBUG")
-        pprint.pprint(net_ifs)
         interfaces = [
             self.__network_interface(name, snicaddrs)
             for name, snicaddrs in net_ifs.items()

