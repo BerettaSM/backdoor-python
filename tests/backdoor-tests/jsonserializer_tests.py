@@ -319,15 +319,13 @@ class TestJsonSerializer:
                         "name": "lo",
                         "inet": "127.0.0.1",
                         "netmask": "255.0.0.0",
-                        "broadcast": "unknown",
-                        "mac": "00:00:00:00:00:00"
+                        "broadcast": "unknown"
                     },
                     {
                         "name": "enp34s0",
                         "inet": "10.1.1.104",
                         "netmask": "255.255.255.0",
-                        "broadcast": "10.1.1.255",
-                        "mac": "11:22:33:44:55:66"
+                        "broadcast": "10.1.1.255"
                     }
                 ]
             }

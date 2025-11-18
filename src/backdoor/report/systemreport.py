@@ -85,6 +85,10 @@ class SystemDataCollector:
 
     def __network_summary(self) -> NetworkSummary:
         net_ifs = psutil.net_if_addrs()
+        import pprint
+
+        print("DEBUG")
+        pprint.pprint(net_ifs)
         interfaces = [
             self.__network_interface(name, snicaddrs)
             for name, snicaddrs in net_ifs.items()
@@ -97,7 +101,7 @@ class SystemDataCollector:
         info: dict[LiteralString, str] = {}
         for addr in snicaddrs:
             match addr.family:
-                case socket.AF_INET:
+                case socket.AF_INET | socket.AF_INET6:
                     info["inet"] = addr.address or UNKNOWN
                     info["broadcast"] = addr.broadcast or UNKNOWN
                     info["netmask"] = addr.netmask or UNKNOWN

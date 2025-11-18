@@ -10,23 +10,23 @@ def recursive_delete(path: Path) -> None:
     if path.is_file():
         path.unlink()
     else:
-        for subpath in path.glob('*'):
+        for subpath in path.glob("*"):
             recursive_delete(subpath)
         path.rmdir()
 
 
 def cleanup() -> None:
     paths = [
-        ROOT / '.pytest_cache',
-        ROOT / '.mypy_cache',
-        ROOT / 'build',
-        ROOT / 'dist',
-        *ROOT.glob('*.spec')
+        ROOT / ".pytest_cache",
+        ROOT / ".mypy_cache",
+        ROOT / "build",
+        ROOT / "dist",
+        *ROOT.glob("*.spec"),
     ]
 
     for path in paths:
         recursive_delete(path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cleanup()
