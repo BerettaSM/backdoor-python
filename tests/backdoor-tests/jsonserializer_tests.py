@@ -1,7 +1,7 @@
 import pytest
 from typing import Any
 
-from backdoor.models.commands import Command, CommandResult
+from backdoor.models.commands import RemoteCommand, CommandResult
 from backdoor.models.systemreport import SystemReport
 from backdoor.report.systemreport import SystemDataCollector
 from backdoor.serialization.exceptions import BadDataError
@@ -180,7 +180,7 @@ class TestJsonSerializer:
     def test_serialize_should_serialize_command(
         self, serializer: JsonSerializer
     ) -> None:
-        payload = Command(command="cmd", args=["arg"], payload=b"payload")
+        payload = RemoteCommand(command="cmd", args=["arg"], payload=b"payload")
 
         result = serializer.serialize(payload)
 
@@ -189,7 +189,7 @@ class TestJsonSerializer:
     def test_serialize_should_serialize_command_when_optional_fields_are_null(
         self, serializer: JsonSerializer
     ) -> None:
-        payload = Command(command="cmd")
+        payload = RemoteCommand(command="cmd")
 
         result = serializer.serialize(payload)
 
@@ -202,7 +202,7 @@ class TestJsonSerializer:
 
         result = serializer.deserialize(payload)
 
-        assert isinstance(result, Command)
+        assert isinstance(result, RemoteCommand)
 
     def test_deserialize_should_deserialize_command_when_optional_fields_are_null(
         self, serializer: JsonSerializer
@@ -211,7 +211,7 @@ class TestJsonSerializer:
 
         result = serializer.deserialize(payload)
 
-        assert isinstance(result, Command)
+        assert isinstance(result, RemoteCommand)
         assert result.args is None
         assert result.payload is None
 

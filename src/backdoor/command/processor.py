@@ -2,7 +2,7 @@ from pathlib import Path
 import sys
 
 from backdoor.files.io import FileReader, FileWriter
-from backdoor.models.commands import Command, CommandResult
+from backdoor.models.commands import Command, RemoteCommand, CommandResult
 
 
 class CommandProcessor:
@@ -13,7 +13,7 @@ class CommandProcessor:
 
     def pre_process(self, command: Command) -> None:
         match command:
-            case Command(command="upload", args=a) if a:
+            case RemoteCommand(command="upload", args=a) if a:
                 filepath = a[0]
                 content = self.file_reader.read(filepath)
                 command.payload = content
@@ -22,7 +22,10 @@ class CommandProcessor:
 
     def post_process(self, command: Command, result: CommandResult) -> None:
         match [command, result]:
-            case [Command(command="download", args=a), CommandResult(payload=p)] if (
+            case [
+                RemoteCommand(command="download", args=a),
+                CommandResult(payload=p),
+            ] if (
                 a and p
             ):
                 self.__save(p, a[0])

@@ -5,8 +5,8 @@ import PyInstaller.__main__
 
 
 HERE = Path(__file__).parent.absolute()
-path_to_server = str(HERE / "src" / "backdoor" / "server.py")
-path_to_client = str(HERE / "src" / "backdoor" / "client.py")
+path_to_server = str(HERE / "src" / "backdoor" / "server" / "__main__.py")
+path_to_client = str(HERE / "src" / "backdoor" / "client" / "__main__.py")
 
 
 def parse_args() -> Namespace:

