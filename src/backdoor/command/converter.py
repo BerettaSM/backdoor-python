@@ -2,7 +2,7 @@
 from backdoor.models.commands import Command, LocalCommand, RemoteCommand
 
 
-LOCAL_COMMANDS = ("systemreport",)
+LOCAL_COMMANDS = ("systemreport", "help")
 
 
 class InputToCommandConverter:

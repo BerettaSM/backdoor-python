@@ -6,6 +6,7 @@ from backdoor.exceptions.core import InvalidArgumentException
 from backdoor.files.processor import FileProcessor
 from backdoor.models.commands import Command, LocalCommand, RemoteCommand, CommandResult
 from backdoor.server.registry import ClientRegistry
+from backdoor.utils.help import get_help_str
 from backdoor.utils.systemreport import format_report
 
 
@@ -49,6 +50,8 @@ class LocalCommandExecutor(CommandExecutor):
 
     def __try_execute(self, command: Command) -> CommandResult:
         match command:
+            case LocalCommand(command="help"):
+                return CommandResult(success=True, returncode=0, stdout=get_help_str())
             case LocalCommand(command="systemreport"):
                 client = self.registry.current_client
                 if not client or not client.report:

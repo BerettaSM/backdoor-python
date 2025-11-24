@@ -22,7 +22,7 @@ class SocketProtocol:
     def send(self, socket: socket, payload: bytes) -> None:
         try:
             self.__try_send(socket, payload)
-        except BrokenPipeError:
+        except (BrokenPipeError, ConnectionResetError):
             raise DisconnectedException
 
     def __try_send(self, socket: socket, payload: bytes) -> None:
