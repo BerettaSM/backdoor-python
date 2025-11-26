@@ -9,6 +9,10 @@ class Command(BaseModel):
     command: str
     args: Optional[list[str]] = None
 
+    def __str__(self) -> str:
+        args = self.args or []
+        return "{} {}".format(self.command, " ".join(args)).strip()
+
 
 class RemoteCommand(Command, PayloadSerializerMixin):
     payload: Optional[bytes] = None

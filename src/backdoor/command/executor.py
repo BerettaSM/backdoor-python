@@ -17,7 +17,7 @@ class CommandExecutor(Protocol):
     def delegate_execute(self, command: Command) -> CommandResult:
         try:
             result = subprocess.run(
-                [command.command, *(command.args or [])], capture_output=True, text=True
+                str(command), capture_output=True, text=True, shell=True
             )
             return CommandResult(
                 success=result.returncode == 0,
