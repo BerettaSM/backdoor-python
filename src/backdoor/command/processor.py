@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 
+from backdoor.exceptions.core import PresentableApplicationException
 from backdoor.files.io import FileReader, FileWriter
 from backdoor.models.commands import Command, RemoteCommand, CommandResult
 from backdoor.server.registry import ClientRegistry
@@ -29,10 +30,11 @@ class CommandProcessor:
             case [
                 RemoteCommand(command="download", args=a),
                 CommandResult(payload=p),
-            ] if (
-                a and p
-            ):
-                self.__save(p, a[0])
+            ]:
+                if a and p:
+                    self.__save(p, a[0])
+                else:
+                    raise PresentableApplicationException("file is empty")
             case _:  # type: ignore
                 self.__print(result)
 
