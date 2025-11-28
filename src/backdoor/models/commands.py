@@ -3,6 +3,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from backdoor.models.mixins import PayloadSerializerMixin
+from backdoor.serialization.decoder import decodable
 
 
 class Command(BaseModel):
@@ -14,13 +15,16 @@ class Command(BaseModel):
         return "{} {}".format(self.command, " ".join(args)).strip()
 
 
+@decodable
 class RemoteCommand(Command, PayloadSerializerMixin):
     payload: Optional[bytes] = None
 
 
+@decodable
 class LocalCommand(Command): ...
 
 
+@decodable
 class CommandResult(BaseModel, PayloadSerializerMixin):
     success: bool
     returncode: int

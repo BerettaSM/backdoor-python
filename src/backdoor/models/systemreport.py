@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from backdoor.serialization.decoder import decodable
+
 
 class SystemIdentity(BaseModel):
     user: str
@@ -48,6 +50,7 @@ class NetworkSummary(BaseModel):
     interfaces: list[NetworkInterfaceInfo]
 
 
+@decodable
 class SystemReport(BaseModel):
     identity: SystemIdentity
     hardware: HardwareSummary
