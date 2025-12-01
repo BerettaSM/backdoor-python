@@ -22,6 +22,7 @@ def cleanup() -> None:
         ROOT / "build",
         ROOT / "dist",
         *ROOT.glob("*.spec"),
+        *ROOT.glob("*_entrypoint.py"),
     ]
 
     for path in paths:

@@ -1,0 +1,19 @@
+from src.backdoor.server.__main__ import create_server
+
+
+HOST = '0.0.0.0'
+PORT: int = $PORT
+
+
+def main() -> None:
+    server = create_server(HOST, PORT)
+
+    try:
+        print(f"Server running at {HOST}:{PORT}.")
+        server.start()
+    except KeyboardInterrupt:
+        ...
+
+
+if __name__ == '__main__':
+    main()

