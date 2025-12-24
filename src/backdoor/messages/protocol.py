@@ -42,8 +42,10 @@ class SocketProtocol:
         while size > 0:
             next_read_size = min(size, self.bufsize)
             chunk = socket.recv(next_read_size)
+            if not chunk:
+                raise DisconnectedException("Connection lost during file transfer.")
             buf.extend(chunk)
-            size -= next_read_size
+            size -= len(chunk)
         return bytes(buf)
 
     def __send_size(self, socket: socket, size: int) -> None:

@@ -47,5 +47,7 @@ class Client:
 
     def __establish_connection(self) -> None:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 8 * 1024 * 1024)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 8 * 1024 * 1024)
         server.connect((self.host, self.port))
         self.server = ServerModel(host=self.host, port=self.port, sock=server)
